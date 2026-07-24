@@ -17,7 +17,7 @@ Een beheerste digitale werkbon realiseren op basis van de leidende PandaDoc MVP-
 
 ```text
 PROJECTFASE:
-WP0 — Governance
+WP1 — Toegang en baseline
 
 WP0 — Governance:
 DONE
@@ -42,6 +42,9 @@ efa196b49ee17ba528cc5613181fc7ac16d4819d
 
 WP1 — Toegang en baseline:
 NEXT — uitsluitend read-only verbindingspreflight
+
+WP2 — Functioneel contract:
+NOT STARTED
 
 IMPLEMENTATIESTATUS:
 Niet vrijgegeven
@@ -128,7 +131,7 @@ Nog geen inhoudelijke baseline-inspectie, credentialwijziging,
 connectorherconfiguratie, workflowuitvoering, implementatie of systeemwrite.
 ```
 
-WP1 is nog niet uitgevoerd of inhoudelijk gestart.
+Een eerste WP1-poging is vóór iedere externe connectorinspectie gestopt, uitsluitend vanwege een governance-inconsistentie tussen dit statusdocument en het execution plan. Er is daarbij geen HubSpot- of n8n-verbindingsbewijs verzameld. Na herstel van die inconsistentie is WP1 opnieuw `NEXT` en moet het vanaf de volledige repositorypreflight worden uitgevoerd. PandaDoc blijft buiten WP1 en vereist afzonderlijke Work-vrijgave. WP2 is `NOT STARTED` en mag pas beginnen nadat WP1 bewijsgebonden is afgerond en volgens het execution plan is vrijgegeven.
 
 ## Uitvoerkanaal en motivatie
 

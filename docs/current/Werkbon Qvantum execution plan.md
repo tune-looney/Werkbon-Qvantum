@@ -5,14 +5,23 @@
 | Werkpakket | Doel | Status |
 | --- | --- | --- |
 | WP0 — Governance | Repository, rollen, bronnen en veiligheidsregels vastleggen | `DONE` |
-| WP1 — Toegang en baseline | HubSpot-productie, sandbox, PandaDoc en n8n bewijsgebonden inspecteren | `BLOCKED / PARTIAL` |
-| WP2 — Functioneel contract | Specificatie v1.1, mappings en besluiten definitief maken | `IN PROGRESS` |
+| WP1 — Toegang en baseline | HubSpot-productie, HubSpot-sandbox en n8n bewijsgebonden inspecteren | `NEXT` |
+| WP2 — Functioneel contract | Specificatie v1.1, mappings en besluiten definitief maken | `NOT STARTED` |
 | WP3 — Technisch ontwerp | Trigger, documentcreatie, statusverwerking, PDF-route en idempotentie ontwerpen | `NOT STARTED` |
 | WP4 — Prototype | Afgebakende workflow bouwen en statisch valideren | `NOT STARTED` |
 | WP5 — Productiepilot | Kleine allowlist en gecontroleerde mobiele pilot uitvoeren | `NOT STARTED` |
 | WP6 — Operationalisering | Monitoring, herstel, beheer en overdracht regelen | `NOT STARTED` |
 
-De enige toegestane inhoudelijke vervolgstap is WP1. WP1 blijft geblokkeerd totdat de benodigde read-only verbindingen aantoonbaar beschikbaar zijn. De GitHub-publicatie van WP0 is afgerond. De private repository `tune-looney/Werkbon-Qvantum` is gepubliceerd en lokale `main` en `origin/main` waren bij afronding synchroon op `efa196b49ee17ba528cc5613181fc7ac16d4819d`.
+Actuele roadmapstatus:
+
+```text
+WP0: DONE
+GitHub-publicatie: DONE
+WP1: NEXT
+WP2: NOT STARTED
+```
+
+De enige toegestane inhoudelijke vervolgstap is WP1. Een eerste WP1-poging is vóór iedere externe connectorinspectie gestopt, uitsluitend vanwege een governance-inconsistentie; daarbij is geen HubSpot- of n8n-verbindingsbewijs verzameld. Na herstel daarvan is WP1 opnieuw `NEXT` en moet het vanaf de volledige repositorypreflight worden uitgevoerd. WP2 is `NOT STARTED` en mag pas starten nadat WP1 bewijsgebonden is afgerond en volgens dit execution plan is vrijgegeven. PandaDoc valt buiten WP1 en vereist afzonderlijke Work-vrijgave. De GitHub-publicatie van WP0 is afgerond. De private repository `tune-looney/Werkbon-Qvantum` is gepubliceerd en lokale `main` en `origin/main` waren bij afronding synchroon op `efa196b49ee17ba528cc5613181fc7ac16d4819d`.
 
 ### Enige volgende veilige stap
 
@@ -46,11 +55,11 @@ connectorherconfiguratie, workflowuitvoering, implementatie of systeemwrite.
 
 ## WP1 — Toegang en baseline
 
-- **Doel:** productie, sandbox, PandaDoc en n8n uitsluitend read-only en bewijsgebonden inspecteren.
+- **Doel:** HubSpot-productie, HubSpot-sandbox en n8n uitsluitend read-only en bewijsgebonden inspecteren.
 - **Entrycriteria:** expliciete GPT/Chat-vrijgave; juiste account-, portal-, credential- en scope-identiteit; read-only verbindingen aantoonbaar beschikbaar.
 - **Exitcriteria:** toegang en relevante baseline per systeem met herleidbaar, geminimaliseerd bewijs vastgelegd; verschillen en blockers benoemd.
 - **Vereist bewijs:** account/portal-identiteit, credentialprofiel zonder secrets, scopes, object- of configuratiebaseline en tijdstip.
-- **Kanaal:** Codex; Work alleen voor een afgebakende PandaDoc-connectoractie met aantoonbare meerwaarde.
+- **Kanaal:** Codex; PandaDoc valt buiten WP1 en wordt alleen na afzonderlijke vrijgave via Work geïnspecteerd.
 - **Verboden:** writes, credentials wijzigen, volledige productiepayloads opslaan en workflows uitvoeren/activeren/publiceren.
 - **Afhankelijkheden:** WP0-governance, read-only verbindingen en expliciete vrijgave.
 
