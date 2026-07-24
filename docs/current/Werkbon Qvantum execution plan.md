@@ -12,7 +12,27 @@
 | WP5 — Productiepilot | Kleine allowlist en gecontroleerde mobiele pilot uitvoeren | `NOT STARTED` |
 | WP6 — Operationalisering | Monitoring, herstel, beheer en overdracht regelen | `NOT STARTED` |
 
-De enige toegestane inhoudelijke vervolgstap is WP1. WP1 blijft geblokkeerd totdat de benodigde read-only verbindingen aantoonbaar beschikbaar zijn. De GitHub-publicatie van WP0 blijft daarnaast een governanceblocker.
+De enige toegestane inhoudelijke vervolgstap is WP1. WP1 blijft geblokkeerd totdat de benodigde read-only verbindingen aantoonbaar beschikbaar zijn. De GitHub-publicatie van WP0 is afgerond. De private repository `tune-looney/Werkbon-Qvantum` is gepubliceerd en lokale `main` en `origin/main` waren bij afronding synchroon op `efa196b49ee17ba528cc5613181fc7ac16d4819d`.
+
+### Enige volgende veilige stap
+
+```text
+UITVOEREN IN: Codex
+
+WP1 — uitsluitend read-only verbindingspreflight.
+
+DOEL:
+Aantoonbaar vaststellen welke verbindingen beschikbaar zijn voor
+HubSpot-productie, HubSpot-sandbox en n8n, met welke omgeving ze verbonden
+zijn en welke relevante toegangs- en mutatiescope aantoonbaar geldt.
+
+PANDADOC:
+Afzonderlijk via Work inspecteren na expliciete vrijgave.
+
+VERBODEN:
+Nog geen inhoudelijke baseline-inspectie, credentialwijziging,
+connectorherconfiguratie, workflowuitvoering, implementatie of systeemwrite.
+```
 
 ## WP0 — Governance
 

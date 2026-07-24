@@ -19,17 +19,35 @@ Een beheerste digitale werkbon realiseren op basis van de leidende PandaDoc MVP-
 PROJECTFASE:
 WP0 — Governance
 
-WP0-STATUS:
-DONE (lokale governance-inrichting)
+WP0 — Governance:
+DONE
 
-WP0 VERDICT:
-PASS WITH GITHUB BLOCKER
+GitHub-publicatie:
+DONE
+
+GitHub-repository:
+tune-looney/Werkbon-Qvantum
+
+URL:
+https://github.com/tune-looney/Werkbon-Qvantum
+
+Visibility:
+PRIVATE
+
+Default branch:
+main
+
+Gepubliceerde WP0-baseline:
+efa196b49ee17ba528cc5613181fc7ac16d4819d
+
+WP1 — Toegang en baseline:
+NEXT — uitsluitend read-only verbindingspreflight
 
 IMPLEMENTATIESTATUS:
 Niet vrijgegeven
 ```
 
-De lokale governance-repository is ingericht. Externe GitHub-aanmaak en push zijn geblokkeerd omdat GitHub CLI niet beschikbaar is en daardoor geen account/owner aantoonbaar kon worden vastgesteld.
+De eerdere GitHub-publicatieblocker is gesloten. De private repository is gepubliceerd en lokale `main` en `origin/main` waren bij afronding synchroon op de vastgelegde WP0-baseline.
 
 ## Leidende specificatie
 
@@ -78,7 +96,6 @@ De n8n-beschikbaarheid en mapinhoud zijn nog niet door WP1-bewijs bevestigd.
 
 ## Actuele blockers
 
-- GitHub CLI is niet beschikbaar; account/owner, bestaande repository en zichtbaarheid zijn niet aantoonbaar.
 - De benodigde read-only HubSpot- en n8n-verbindingen zijn in deze Codex-omgeving nog niet gepreflight.
 - PandaDoc-template-details zijn gedeeltelijk geblokkeerd door een connectorvalidatiefout.
 - Open functionele besluiten D01–D12 verhinderen een definitief technisch contract.
@@ -89,17 +106,33 @@ De besluiten D01–D12 staan allemaal `OPEN`. Zie het [open besluitenregister](W
 
 ## Laatst afgeronde stap
 
-Lokale WP0-governance-inrichting: minimale structuur, uitvoeringsregels, status, execution plan en besluitenregister zijn aangemaakt en lokaal gevalideerd.
+WP0-governance en GitHub-publicatie: de minimale structuur en governancebestanden zijn lokaal gevalideerd, gecommit en als private repository `tune-looney/Werkbon-Qvantum` gepubliceerd.
 
 ## Enige toegestane volgende stap
 
-**WP1 — gebundelde, uitsluitend read-only toegangs- en baseline-inspectie, te beginnen met een preflight van de beschikbare HubSpot- en n8n-verbindingen.**
+```text
+UITVOEREN IN: Codex
 
-WP1 blijft geblokkeerd totdat de benodigde read-only verbindingen in de betreffende Codex-omgeving aantoonbaar beschikbaar zijn.
+WP1 — uitsluitend read-only verbindingspreflight.
+
+DOEL:
+Aantoonbaar vaststellen welke verbindingen beschikbaar zijn voor
+HubSpot-productie, HubSpot-sandbox en n8n, met welke omgeving ze verbonden
+zijn en welke relevante toegangs- en mutatiescope aantoonbaar geldt.
+
+PANDADOC:
+Afzonderlijk via Work inspecteren na expliciete vrijgave.
+
+VERBODEN:
+Nog geen inhoudelijke baseline-inspectie, credentialwijziging,
+connectorherconfiguratie, workflowuitvoering, implementatie of systeemwrite.
+```
+
+WP1 is nog niet uitgevoerd of inhoudelijk gestart.
 
 ## Uitvoerkanaal en motivatie
 
-Codex is het aangewezen kanaal voor de WP1-preflight en read-only inspectie, omdat Codex technisch bewijs kan ophalen en valideren. Work wordt alleen voor een afgebakende PandaDoc-connectoractie gebruikt als die aantoonbaar meerwaarde heeft. GPT/Chat beslist over scope en vrijgave.
+Codex is het aangewezen kanaal voor uitsluitend de WP1-verbindingspreflight, omdat Codex technisch bewijs kan ophalen en valideren. PandaDoc wordt afzonderlijk via Work geïnspecteerd na expliciete vrijgave. GPT/Chat beslist over scope en vrijgave.
 
 ## Verboden acties
 
