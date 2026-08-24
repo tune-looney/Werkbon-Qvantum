@@ -12,6 +12,8 @@
 Thumbs.db
 .idea/
 .vscode/
+.hsaccount
+.vite/
 
 # Temporary output and dependencies
 node_modules/

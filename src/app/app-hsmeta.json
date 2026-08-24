@@ -1,0 +1,18 @@
+{
+  "uid": "qvantum_werkbon_app",
+  "type": "app",
+  "config": {
+    "name": "Qvantum Werkbon (${ENVIRONMENT_NAME})",
+    "description": "Opent vanuit een HubSpot-ticket de gekoppelde Qvantum-werkbon.",
+    "distribution": "private",
+    "auth": {
+      "type": "static",
+      "requiredScopes": ["tickets", "files", "crm.objects.contacts.write"]
+    },
+    "permittedUrls": {
+      "fetch": [],
+      "iframe": [],
+      "img": []
+    }
+  }
+}

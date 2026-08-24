@@ -1,0 +1,9 @@
+{
+  "name": "qvantum-werkbon-functions",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build:runtime": "node build-runtime-bundle.js",
+    "test": "npm run build:runtime && node --test"
+  }
+}

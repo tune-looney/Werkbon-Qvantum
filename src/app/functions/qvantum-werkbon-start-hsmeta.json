@@ -1,0 +1,8 @@
+{
+  "uid": "qvantum_werkbon_start",
+  "type": "app-function",
+  "config": {
+    "entrypoint": "/app/functions/QvantumWerkbonRuntime.js",
+    "secretKeys": ["DOCUMENSO_API_TOKEN", "HUBSPOT_WORKBON_SERVICE_KEY"]
+  }
+}
