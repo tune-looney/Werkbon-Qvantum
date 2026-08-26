@@ -59,7 +59,9 @@ function validateTicketContext(ticket, ticketId, runtimeConfig = config) {
   const subject = String(ticket?.subject ?? "");
   const subjectMatches = runtimeConfig.allowedSubjectExact !== null
     ? subject === runtimeConfig.allowedSubjectExact
-    : subject.startsWith(runtimeConfig.allowedSubjectPrefix);
+    : runtimeConfig.allowedSubjectPrefix !== null
+      ? subject.startsWith(runtimeConfig.allowedSubjectPrefix)
+      : true;
   if (
     ticket?.id !== ticketId ||
     String(ticket?.pipelineId ?? "") !== String(runtimeConfig.allowedPipelineId) ||

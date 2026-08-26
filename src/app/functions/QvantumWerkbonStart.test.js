@@ -535,11 +535,11 @@ test("production config is selected only for portal 143794667", () => {
   assert.equal(config.forPortal(143794667), productionConfig);
   assert.equal(config.forPortal("1"), null);
   assert.equal(productionConfig.allowedPipelineId, "0");
-  assert.deepEqual(productionConfig.allowedTicketIds, [PRODUCTION_TICKET_ID]);
-  assert.equal(productionConfig.allowedSubjectExact, "OSH BEA400");
+  assert.equal(productionConfig.allowedTicketIds, null);
+  assert.equal(productionConfig.allowedSubjectExact, null);
 });
 
-test("production scope requires the exact portal and Ticket allowlist", () => {
+test("production scope requires the exact portal while allowing pilot Ticket IDs", () => {
   assert.deepEqual(
     validateStartScope(
       {
@@ -551,16 +551,12 @@ test("production scope requires the exact portal and Ticket allowlist", () => {
     ),
     { accountId: "143794667", ticketId: PRODUCTION_TICKET_ID },
   );
-  assert.throws(
-    () => validateStartScope(
-      {
-        serverAccountId: "143794667",
-        clientAccountId: "143794667",
-        ticketId: DEFAULT_TICKET_ID,
-      },
+  assert.deepEqual(
+    validateStartScope(
+      { serverAccountId: "143794667", clientAccountId: "143794667", ticketId: DEFAULT_TICKET_ID },
       productionConfig,
     ),
-    (error) => error.code === "TICKET_NOT_ALLOWED",
+    { accountId: "143794667", ticketId: DEFAULT_TICKET_ID },
   );
   assert.throws(
     () => validateStartScope(
@@ -586,16 +582,15 @@ test("production scope requires the exact portal and Ticket allowlist", () => {
   );
 });
 
-test("production Ticket guard requires exact ID, pipeline and subject", () => {
+test("production Ticket guard requires server-read ID and pipeline, without cutover subject lock", () => {
   assert.doesNotThrow(() => validateTicketContext(
-    { id: PRODUCTION_TICKET_ID, pipelineId: "0", subject: "OSH BEA400" },
+    { id: PRODUCTION_TICKET_ID, pipelineId: "0", subject: "Pilot ticket" },
     PRODUCTION_TICKET_ID,
     productionConfig,
   ));
   for (const ticket of [
     { id: DEFAULT_TICKET_ID, pipelineId: "0", subject: "OSH BEA400" },
     { id: PRODUCTION_TICKET_ID, pipelineId: "1", subject: "OSH BEA400" },
-    { id: PRODUCTION_TICKET_ID, pipelineId: "0", subject: "OSH BEA400 extra" },
   ]) {
     assert.throws(
       () => validateTicketContext(ticket, PRODUCTION_TICKET_ID, productionConfig),
@@ -688,7 +683,7 @@ test("serverless entrypoint rejects wrong portal before secret construction", as
   assert.equal(result.error.code, "PORTAL_MISMATCH");
 });
 
-test("serverless production entrypoint rejects a non-allowlisted Ticket before secrets", async () => {
+test("serverless production entrypoint accepts a pilot Ticket after server-side context read", async () => {
   const result = await main({
     accountId: 143794667,
     parameters: {
@@ -698,5 +693,5 @@ test("serverless production entrypoint rejects a non-allowlisted Ticket before s
     },
   });
   assert.equal(result.ok, false);
-  assert.equal(result.error.code, "TICKET_NOT_ALLOWED");
+  assert.notEqual(result.error.code, "TICKET_NOT_ALLOWED");
 });

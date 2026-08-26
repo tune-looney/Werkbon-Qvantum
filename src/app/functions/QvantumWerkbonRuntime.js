@@ -40,9 +40,9 @@ const productionConfig = Object.freeze({
   ...sharedConfig,
   environmentName: "production",
   allowedPortalId: "143794667",
-  allowedTicketIds: Object.freeze(["415307052257"]),
+  allowedTicketIds: null,
   allowedSubjectPrefix: null,
-  allowedSubjectExact: "OSH BEA400",
+  allowedSubjectExact: null,
   externalIdPrefix: "hubspot:143794667:ticket:",
 });
 
@@ -531,7 +531,9 @@ function validateTicketContext(ticket, ticketId, runtimeConfig = config) {
   const subject = String(ticket?.subject ?? "");
   const subjectMatches = runtimeConfig.allowedSubjectExact !== null
     ? subject === runtimeConfig.allowedSubjectExact
-    : subject.startsWith(runtimeConfig.allowedSubjectPrefix);
+    : runtimeConfig.allowedSubjectPrefix !== null
+      ? subject.startsWith(runtimeConfig.allowedSubjectPrefix)
+      : true;
   if (
     ticket?.id !== ticketId ||
     String(ticket?.pipelineId ?? "") !== String(runtimeConfig.allowedPipelineId) ||

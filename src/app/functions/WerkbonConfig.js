@@ -35,9 +35,9 @@ const productionConfig = Object.freeze({
   ...sharedConfig,
   environmentName: "production",
   allowedPortalId: "143794667",
-  allowedTicketIds: Object.freeze(["415307052257"]),
+  allowedTicketIds: null,
   allowedSubjectPrefix: null,
-  allowedSubjectExact: "OSH BEA400",
+  allowedSubjectExact: null,
   externalIdPrefix: "hubspot:143794667:ticket:",
 });
 
