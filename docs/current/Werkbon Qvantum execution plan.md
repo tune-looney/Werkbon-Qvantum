@@ -1,5 +1,41 @@
 # Werkbon Qvantum execution plan
 
+## Closure-addendum production MVP en pilot guard update — 2026-08-26
+
+De production-MVP is aantoonbaar afgerond. Dit addendum is leidend boven de historische roadmap hieronder.
+
+### Productionbewijs
+
+- Portal `143794667`, pipeline `0`; controlled Ticket `415307052257` (`OSH BEA400`).
+- Productionproject `qvantum-werkbon`: build `#1`, deployment `#2`; application, App Card en serverless function `SUCCESS`.
+- App Card zichtbaar en werkend op het Ticketrecord.
+- Exact één Documenso-envelope met portalgebonden externalId; signingvolgorde Monteur → Klant; eindstatus `COMPLETED`.
+- Signed PDF en exact één Note met attachment zijn op hetzelfde Ticket visueel bevestigd.
+- Test-Note en attachment zijn daarna bewust handmatig verwijderd. De twee mappingproperties blijven behouden als audit/idempotency state.
+
+Operationele les: het verwijderen van de HubSpot Note verwijdert ook de gekoppelde werkbonattachment uit de Ticketweergave.
+
+### Pilot-runbook
+
+1. Selecteer vooraf een echt production Ticket en controleer portal, pipeline, subject en lege mappingstatus.
+2. Open de App Card vanuit dat Ticket; start geen tweede run en gebruik geen automatische retry.
+3. Kies alleen Richard van den Bergh of Marco Liefhebber; laat de klant op hetzelfde apparaat tekenen.
+4. Controleer `COMPLETED`, signed PDF, Note/attachment en beide mappingproperties.
+5. Plan dagelijks of periodiek een korte evaluatie; gebruik geen bulkautomatisering.
+
+Pilotstopcriteria: verkeerde context, duplicate envelope, vastlopende signing, ontbrekende PDF/Note, File/auth/scopefout, App Card onbruikbaar, onverwachte CRM-write of afwijkende recovery/idempotency. Escaleer direct en verwijder niets.
+
+### Actuele roadmap
+
+| Onderdeel | Status |
+| --- | --- |
+| Production MVP | `DONE` |
+| Production deployment/cutoverbewijs | `DONE` |
+| Production pilot readiness | `BLOCKED` — tijdelijke cutover-guards beperken tot Ticket `415307052257` / `OSH BEA400` |
+| Pilot Guard Configuration | `NEXT` |
+| Controlled Test Artifact Cleanup | `WAITING` |
+| Serviceorderonderzoek | `WAITING` |
+
 ## Actuele production-prepaddendum — 2026-08-26
 
 De golden sandboxbaseline is production-ready gemaakt zonder deployment. Deze addendum is leidend waar de historische roadmapsecties 18 en 19 een oudere projectfase beschrijven.

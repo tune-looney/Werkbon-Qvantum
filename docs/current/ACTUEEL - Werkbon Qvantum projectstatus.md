@@ -1,16 +1,16 @@
 # ACTUEEL — Werkbon Qvantum projectstatus
 
-## Actuele production-prepstatus — 2026-08-26
+## Actuele production-MVP- en pilotstatus — 2026-08-26
 
 ```text
 PROJECTFASE:
-Production configuration gereed voor gecontroleerde deployment
+Production MVP gesloten; pilotguard-update vereist
 
 VERDICT:
-PASS — PRODUCTION CONFIG READY FOR CONTROLLED DEPLOYMENT
+PASS — PRODUCTION MVP CLOSED
 
 ENIGE VOLGENDE VEILIGE STAP:
-Controlled Production Deployment + Single-Ticket Cutover
+Pilot Guard Configuration
 ```
 
 Leidende technische baseline:
@@ -24,10 +24,25 @@ Leidende technische baseline:
 - beide `qvantum_documenso_*` Ticket-properties bestaan als single-line tekst;
 - sandbox en production worden fail-closed op serverportal van elkaar gescheiden;
 - lokale validatie: 41/41 function tests, 10/10 App Card tests, typecheck, project validate voor beide profielen, clean module-load en reproduceerbare runtimebundle PASS.
+- production deployment: build `#1`, deployment `#2`, application/card/serverless `SUCCESS`;
+- gecontroleerde production-MVP: Ticket `415307052257`, subject `OSH BEA400`, exact één envelope, signingvolgorde Monteur → Klant, `COMPLETED`, signed PDF en Note visueel bevestigd;
+- test-Note en attachment zijn na visuele verificatie handmatig verwijderd; beide technische mappingproperties blijven behouden als audit- en idempotentiestate.
+
+Operationele les voor de pilot: het verwijderen van de HubSpot Note verwijdert ook de gekoppelde werkbonattachment uit de Ticketweergave.
+
+## Voorbereidende pilotdocumentatie (pilot nog niet gereed)
+
+- Monteurs: Richard van den Bergh en Marco Liefhebber.
+- Alleen vooraf geselecteerde echte production Tickets; geen bulkgebruik of automatisering. De huidige tijdelijke guards staan nog op exact Ticket `415307052257` en subject `OSH BEA400`; deze moeten vóór pilot worden vervangen door de bedoelde production pilot guards.
+- Monteur gebruikt de App Card handmatig vanuit het juiste Ticket.
+- Klant tekent op hetzelfde apparaat.
+- Dagelijks of periodiek kort evaluatiemoment; geen automatische retries.
+
+Stop en escaleer direct bij verkeerde Ticket/context, een tweede of dubbele envelope, vastlopende signingflow, ontbrekende PDF/Note, File/auth/scopefout, onbruikbare App Card, onverwachte CRM-write of afwijkend recovery/idempotencygedrag.
 
 Files-search is geen pre-deployment stopgate meer: de waargenomen HTTP 400-responses waren `VALIDATION_ERROR` en geen auth/scopebewijs. De eerste echte File-upload blijft tijdens de controlled cutover een expliciete stopgate; de eerste auth/scopefout stopt die cutover onmiddellijk.
 
-Niet uitgevoerd: geen app upload/deployment, geen production secrets ingesteld, geen Ticket/File/Note-runtimewrites, geen Documenso-writes en geen controlled cutover.
+Niet uitgevoerd sinds closure: geen nieuwe deployment, secretswijziging, runtime-test of cleanup. De test-Note en attachment zijn buiten deze closure al handmatig verwijderd; mappingproperties zijn bewust behouden. Pilot readiness is geblokkeerd totdat de tijdelijke cutover-guards zijn aangepast.
 
 Deze sectie vervangt voor actuele status en volgende stap de historische WP0/WP1-status verderop in dit document.
 
