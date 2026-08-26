@@ -103,7 +103,7 @@ const WerkbonCard = ({ portalId, ticketId }: WerkbonCardProps) => {
 
   return (
     <Flex direction="column" gap="medium">
-      <Text>Documenso-werkbon voor dit sandboxticket.</Text>
+      <Text>Documenso-werkbon voor dit gecontroleerde Ticket.</Text>
       {!initialized ? <Text>Werkbonstatus laden...</Text> : null}
       {showStartForm ? (
         <Flex direction="column" gap="small">

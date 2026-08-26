@@ -130,7 +130,7 @@ function createDocumensoClient({ apiToken, fetchImpl = globalThis.fetch, config 
             name: recipients.klant.name,
           },
         ],
-        externalId: `hubspot-ticket:${ticketId}`,
+        externalId: `${config.externalIdPrefix}${ticketId}`,
       };
       const form = new FormData();
       form.append("payload", JSON.stringify(payload));

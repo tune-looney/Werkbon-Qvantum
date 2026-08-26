@@ -1,9 +1,7 @@
 "use strict";
 
-module.exports = Object.freeze({
-  allowedPortalId: "147599771",
+const sharedConfig = Object.freeze({
   allowedPipelineId: "0",
-  allowedSubjectPrefix: "TEST - Werkbon",
   documensoApiBaseUrl: "https://app.documenso.com/api/v2",
   documensoAppBaseUrl: "https://app.documenso.com",
   documensoTemplateEnvelopeId: "envelope_dtufbxnrcmecmzbi",
@@ -21,4 +19,42 @@ module.exports = Object.freeze({
     "Marco Liefhebber",
   ]),
   noteAssociationTypeId: 228,
+});
+
+const sandboxConfig = Object.freeze({
+  ...sharedConfig,
+  environmentName: "sandbox",
+  allowedPortalId: "147599771",
+  allowedTicketIds: null,
+  allowedSubjectPrefix: "TEST - Werkbon",
+  allowedSubjectExact: null,
+  externalIdPrefix: "hubspot-ticket:",
+});
+
+const productionConfig = Object.freeze({
+  ...sharedConfig,
+  environmentName: "production",
+  allowedPortalId: "143794667",
+  allowedTicketIds: Object.freeze(["415307052257"]),
+  allowedSubjectPrefix: null,
+  allowedSubjectExact: "OSH BEA400",
+  externalIdPrefix: "hubspot:143794667:ticket:",
+});
+
+const environments = Object.freeze({
+  sandbox: sandboxConfig,
+  production: productionConfig,
+});
+
+function forPortal(portalId) {
+  const normalized = String(portalId ?? "");
+  return Object.values(environments).find(
+    (environmentConfig) => environmentConfig.allowedPortalId === normalized,
+  ) || null;
+}
+
+module.exports = Object.freeze({
+  ...sandboxConfig,
+  environments,
+  forPortal,
 });

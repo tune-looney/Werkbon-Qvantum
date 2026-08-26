@@ -7,6 +7,7 @@ const { join } = require("node:path");
 const test = require("node:test");
 const config = require("./WerkbonConfig");
 const {
+  buildExternalId,
   main,
   runResumeWorkflow,
   runStartWorkflow,
@@ -15,6 +16,8 @@ const {
 } = require("./QvantumWerkbonStart");
 
 const DEFAULT_TICKET_ID = "429800712422";
+const PRODUCTION_TICKET_ID = "415307052257";
+const productionConfig = config.environments.production;
 
 function loadCleanRuntimeBundle() {
   const cleanRuntimeDirectory = mkdtempSync(join(tmpdir(), "qvantum-werkbon-runtime-"));
@@ -41,6 +44,12 @@ test("app-function metadata targets the self-contained case-exact runtime bundle
     bundleSource,
     /\brequire\(["']\.\/(?:WerkbonConfig|HubSpotTicketClient|DocumensoClient)["']\)/,
   );
+  const productionProfile = JSON.parse(
+    readFileSync(join(__dirname, "..", "..", "hsprofile.production.json"), "utf8"),
+  );
+  assert.equal(productionProfile.accountId, 143794667);
+  assert.equal(productionProfile.variables.ENVIRONMENT_NAME, "production");
+  assert.equal(productionProfile.variables.HUBSPOT_PORTAL_ID, "143794667");
 });
 
 function input(overrides = {}) {
@@ -104,6 +113,7 @@ function harness({
     upload: 0,
     note: 0,
     mapFile: 0,
+    findExternalIds: [],
   };
   const sequence = [];
   return {
@@ -141,8 +151,9 @@ function harness({
         },
       },
       documenso: {
-        async findEnvelopesByExternalId() {
+        async findEnvelopesByExternalId(externalId) {
           calls.find += 1;
+          calls.findExternalIds.push(externalId);
           return recoveryCandidates;
         },
         async createFromTemplate() {
@@ -507,7 +518,7 @@ test("sandbox guard rejects wrong pipeline and subject without the exact prefix"
         { id: DEFAULT_TICKET_ID, pipelineId: "1", subject: "TEST - Werkbon 1" },
         DEFAULT_TICKET_ID,
       ),
-    (error) => error.code === "SANDBOX_CONTEXT_MISMATCH",
+    (error) => error.code === "TICKET_CONTEXT_MISMATCH",
   );
   assert.throws(
     () =>
@@ -515,8 +526,131 @@ test("sandbox guard rejects wrong pipeline and subject without the exact prefix"
         { id: DEFAULT_TICKET_ID, pipelineId: "0", subject: "Werkbon 1" },
         DEFAULT_TICKET_ID,
       ),
-    (error) => error.code === "SANDBOX_CONTEXT_MISMATCH",
+    (error) => error.code === "TICKET_CONTEXT_MISMATCH",
   );
+});
+
+test("production config is selected only for portal 143794667", () => {
+  assert.equal(config.forPortal("147599771"), config.environments.sandbox);
+  assert.equal(config.forPortal(143794667), productionConfig);
+  assert.equal(config.forPortal("1"), null);
+  assert.equal(productionConfig.allowedPipelineId, "0");
+  assert.deepEqual(productionConfig.allowedTicketIds, [PRODUCTION_TICKET_ID]);
+  assert.equal(productionConfig.allowedSubjectExact, "OSH BEA400");
+});
+
+test("production scope requires the exact portal and Ticket allowlist", () => {
+  assert.deepEqual(
+    validateStartScope(
+      {
+        serverAccountId: "143794667",
+        clientAccountId: "143794667",
+        ticketId: PRODUCTION_TICKET_ID,
+      },
+      productionConfig,
+    ),
+    { accountId: "143794667", ticketId: PRODUCTION_TICKET_ID },
+  );
+  assert.throws(
+    () => validateStartScope(
+      {
+        serverAccountId: "143794667",
+        clientAccountId: "143794667",
+        ticketId: DEFAULT_TICKET_ID,
+      },
+      productionConfig,
+    ),
+    (error) => error.code === "TICKET_NOT_ALLOWED",
+  );
+  assert.throws(
+    () => validateStartScope(
+      {
+        serverAccountId: "147599771",
+        clientAccountId: "147599771",
+        ticketId: PRODUCTION_TICKET_ID,
+      },
+      productionConfig,
+    ),
+    (error) => error.code === "PORTAL_MISMATCH",
+  );
+  assert.throws(
+    () => validateStartScope(
+      {
+        serverAccountId: "143794667",
+        clientAccountId: "143794667",
+        ticketId: PRODUCTION_TICKET_ID,
+      },
+      config.environments.sandbox,
+    ),
+    (error) => error.code === "PORTAL_MISMATCH",
+  );
+});
+
+test("production Ticket guard requires exact ID, pipeline and subject", () => {
+  assert.doesNotThrow(() => validateTicketContext(
+    { id: PRODUCTION_TICKET_ID, pipelineId: "0", subject: "OSH BEA400" },
+    PRODUCTION_TICKET_ID,
+    productionConfig,
+  ));
+  for (const ticket of [
+    { id: DEFAULT_TICKET_ID, pipelineId: "0", subject: "OSH BEA400" },
+    { id: PRODUCTION_TICKET_ID, pipelineId: "1", subject: "OSH BEA400" },
+    { id: PRODUCTION_TICKET_ID, pipelineId: "0", subject: "OSH BEA400 extra" },
+  ]) {
+    assert.throws(
+      () => validateTicketContext(ticket, PRODUCTION_TICKET_ID, productionConfig),
+      (error) => error.code === "TICKET_CONTEXT_MISMATCH",
+    );
+  }
+});
+
+test("production uses a portal-bound externalId and remains recovery-idempotent", async () => {
+  const externalId = `hubspot:143794667:ticket:${PRODUCTION_TICKET_ID}`;
+  const currentEnvelope = envelope({ externalId });
+  const h = harness({
+    ticketId: PRODUCTION_TICKET_ID,
+    subject: "OSH BEA400",
+    currentEnvelope,
+  });
+  const productionInput = input({
+    serverAccountId: "143794667",
+    clientAccountId: "143794667",
+    ticketId: PRODUCTION_TICKET_ID,
+  });
+  const result = await runStartWorkflow(productionInput, h.dependencies, productionConfig);
+  assert.equal(buildExternalId(PRODUCTION_TICKET_ID, productionConfig), externalId);
+  assert.deepEqual(h.calls.findExternalIds, [externalId]);
+  assert.equal(result.source, "created");
+  assert.deepEqual(h.sequence, ["create", "map-envelope", "distribute"]);
+});
+
+test("production resume uses the mapped envelope without writes", async () => {
+  const externalId = `hubspot:143794667:ticket:${PRODUCTION_TICKET_ID}`;
+  const h = harness({
+    ticketId: PRODUCTION_TICKET_ID,
+    subject: "OSH BEA400",
+    envelopeId: "envelope_a",
+    currentEnvelope: envelope({ externalId }),
+  });
+  const result = await runResumeWorkflow(
+    input({
+      serverAccountId: "143794667",
+      clientAccountId: "143794667",
+      ticketId: PRODUCTION_TICKET_ID,
+      action: "resume",
+      recipients: undefined,
+    }),
+    h.dependencies,
+    productionConfig,
+  );
+  assert.equal(result.status, "SIGNING_PENDING");
+  assert.equal(h.calls.mapEnvelope, 0);
+  assert.equal(h.calls.create, 0);
+  assert.equal(h.calls.distribute, 0);
+  assert.equal(h.calls.download, 0);
+  assert.equal(h.calls.upload, 0);
+  assert.equal(h.calls.note, 0);
+  assert.equal(h.calls.mapFile, 0);
 });
 
 test("a new arbitrary sandbox ticket reaches the existing recipient and recovery flow", async () => {
@@ -552,4 +686,17 @@ test("serverless entrypoint rejects wrong portal before secret construction", as
   });
   assert.equal(result.ok, false);
   assert.equal(result.error.code, "PORTAL_MISMATCH");
+});
+
+test("serverless production entrypoint rejects a non-allowlisted Ticket before secrets", async () => {
+  const result = await main({
+    accountId: 143794667,
+    parameters: {
+      accountId: "143794667",
+      ticketId: DEFAULT_TICKET_ID,
+      action: "resume",
+    },
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.error.code, "TICKET_NOT_ALLOWED");
 });

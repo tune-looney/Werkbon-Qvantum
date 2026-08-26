@@ -1,5 +1,28 @@
 # Werkbon Qvantum execution plan
 
+## Actuele production-prepaddendum — 2026-08-26
+
+De golden sandboxbaseline is production-ready gemaakt zonder deployment. Deze addendum is leidend waar de historische roadmapsecties 18 en 19 een oudere projectfase beschrijven.
+
+Afgerond en lokaal bewezen:
+
+- expliciete sandbox- en productionprofielen;
+- productionguards op portal `143794667`, pipeline `0`, Ticket `415307052257` en exact subject `OSH BEA400`;
+- portalgebonden production externalId `hubspot:143794667:ticket:<ticketId>`;
+- behoud van sandbox externalId `hubspot-ticket:<ticketId>`;
+- production/sandbox contextisolatie;
+- idempotente mapping/recovery en read-only resume-on-load;
+- reproduceerbare self-contained runtimebundle;
+- volledige lokale validation PASS.
+
+De enige volgende veilige stap is:
+
+```text
+Controlled Production Deployment + Single-Ticket Cutover
+```
+
+Die stap vereist een afzonderlijke expliciete vrijgave. Tot die vrijgave blijven app upload/deployment, secrets instellen, Ticket/File/Note-runtimewrites, Documenso create/distribute en cutover verboden. De eerste echte File-upload is binnen de controlled cutover een stopgate; een auth/scopefout stopt direct.
+
 ## 1. Doel en status van dit plan
 
 Dit document is het zelfstandige, leidende execution plan voor de Qvantum digitale werkbon. Het vervangt de inhoud van het eerder aangeleverde execution plan volledig. Dat oudere plan blijft uitsluitend een historische contrastbron en bewijst geen actuele roadmapstatus.

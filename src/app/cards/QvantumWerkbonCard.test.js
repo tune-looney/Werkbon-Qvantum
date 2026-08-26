@@ -7,6 +7,11 @@ const { test } = require("node:test");
 const ts = require("typescript");
 
 const cardSource = readFileSync(join(__dirname, "QvantumWerkbonCard.tsx"), "utf8");
+
+test("card copy is environment-neutral", () => {
+  assert.match(cardSource, /gecontroleerde Ticket/);
+  assert.doesNotMatch(cardSource, /sandboxticket/i);
+});
 const contractSource = readFileSync(join(__dirname, "start-contract.ts"), "utf8");
 
 function loadStartContract() {

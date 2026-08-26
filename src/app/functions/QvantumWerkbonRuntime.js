@@ -5,10 +5,8 @@ const __moduleFactories = {
 "./WerkbonConfig": function(module, exports, __bundleRequire) {
 "use strict";
 
-module.exports = Object.freeze({
-  allowedPortalId: "147599771",
+const sharedConfig = Object.freeze({
   allowedPipelineId: "0",
-  allowedSubjectPrefix: "TEST - Werkbon",
   documensoApiBaseUrl: "https://app.documenso.com/api/v2",
   documensoAppBaseUrl: "https://app.documenso.com",
   documensoTemplateEnvelopeId: "envelope_dtufbxnrcmecmzbi",
@@ -26,6 +24,44 @@ module.exports = Object.freeze({
     "Marco Liefhebber",
   ]),
   noteAssociationTypeId: 228,
+});
+
+const sandboxConfig = Object.freeze({
+  ...sharedConfig,
+  environmentName: "sandbox",
+  allowedPortalId: "147599771",
+  allowedTicketIds: null,
+  allowedSubjectPrefix: "TEST - Werkbon",
+  allowedSubjectExact: null,
+  externalIdPrefix: "hubspot-ticket:",
+});
+
+const productionConfig = Object.freeze({
+  ...sharedConfig,
+  environmentName: "production",
+  allowedPortalId: "143794667",
+  allowedTicketIds: Object.freeze(["415307052257"]),
+  allowedSubjectPrefix: null,
+  allowedSubjectExact: "OSH BEA400",
+  externalIdPrefix: "hubspot:143794667:ticket:",
+});
+
+const environments = Object.freeze({
+  sandbox: sandboxConfig,
+  production: productionConfig,
+});
+
+function forPortal(portalId) {
+  const normalized = String(portalId ?? "");
+  return Object.values(environments).find(
+    (environmentConfig) => environmentConfig.allowedPortalId === normalized,
+  ) || null;
+}
+
+module.exports = Object.freeze({
+  ...sandboxConfig,
+  environments,
+  forPortal,
 });
 
 },
@@ -303,7 +339,7 @@ function createDocumensoClient({ apiToken, fetchImpl = globalThis.fetch, config 
             name: recipients.klant.name,
           },
         ],
-        externalId: `hubspot-ticket:${ticketId}`,
+        externalId: `${config.externalIdPrefix}${ticketId}`,
       };
       const form = new FormData();
       form.append("payload", JSON.stringify(payload));
@@ -458,6 +494,10 @@ function normalizeId(value, fieldName) {
   return normalized;
 }
 
+function buildExternalId(ticketId, runtimeConfig = config) {
+  return `${runtimeConfig.externalIdPrefix}${ticketId}`;
+}
+
 function validateStartScope(input, runtimeConfig = config) {
   const clientAccountId = normalizeId(input.clientAccountId, "accountId");
   const hasServerAccountId = input.serverAccountId !== undefined && input.serverAccountId !== null;
@@ -472,21 +512,34 @@ function validateStartScope(input, runtimeConfig = config) {
   ) {
     throw new WorkflowError(
       "PORTAL_MISMATCH",
-      "Portal komt niet overeen met de sandboxconfiguratie.",
+      "Portal komt niet overeen met de actieve Werkbon-configuratie.",
+    );
+  }
+  if (
+    Array.isArray(runtimeConfig.allowedTicketIds) &&
+    !runtimeConfig.allowedTicketIds.includes(ticketId)
+  ) {
+    throw new WorkflowError(
+      "TICKET_NOT_ALLOWED",
+      "Ticket is niet vrijgegeven voor de actieve Werkbon-configuratie.",
     );
   }
   return { accountId: serverAccountId ?? clientAccountId, ticketId };
 }
 
 function validateTicketContext(ticket, ticketId, runtimeConfig = config) {
+  const subject = String(ticket?.subject ?? "");
+  const subjectMatches = runtimeConfig.allowedSubjectExact !== null
+    ? subject === runtimeConfig.allowedSubjectExact
+    : subject.startsWith(runtimeConfig.allowedSubjectPrefix);
   if (
     ticket?.id !== ticketId ||
     String(ticket?.pipelineId ?? "") !== String(runtimeConfig.allowedPipelineId) ||
-    !String(ticket?.subject ?? "").startsWith(runtimeConfig.allowedSubjectPrefix)
+    !subjectMatches
   ) {
     throw new WorkflowError(
-      "SANDBOX_CONTEXT_MISMATCH",
-      "Ticketpipeline of subject wijkt af van de sandboxconfiguratie.",
+      "TICKET_CONTEXT_MISMATCH",
+      "Ticket-ID, pipeline of subject wijkt af van de actieve Werkbon-configuratie.",
     );
   }
 }
@@ -525,11 +578,11 @@ function validateEnvelopeContract(
   expectedRecipients = null,
   runtimeConfig = config,
 ) {
-  const expectedExternalId = `hubspot-ticket:${ticketId}`;
+  const expectedExternalId = buildExternalId(ticketId, runtimeConfig);
   if (envelope.externalId !== expectedExternalId) {
     throw new WorkflowError(
       "ENVELOPE_CORRELATION_MISMATCH",
-      "Documenso-envelope hoort niet bij dit sandboxticket.",
+      "Documenso-envelope hoort niet bij dit Werkbon-ticket en portal.",
     );
   }
   if (
@@ -611,7 +664,7 @@ async function findRecoveryEnvelope(
   expectedRecipients,
   runtimeConfig = config,
 ) {
-  const externalId = `hubspot-ticket:${ticketId}`;
+  const externalId = buildExternalId(ticketId, runtimeConfig);
   const references = await documenso.findEnvelopesByExternalId(externalId);
   const candidates = [];
   for (const reference of references) {
@@ -760,15 +813,15 @@ function readyResult({ source, status, envelope, hubspotFileId = null }) {
   };
 }
 
-function createRuntimeDependencies() {
+function createRuntimeDependencies(runtimeConfig) {
   return {
     hubspot: createHubSpotTicketClient({
       accessToken: process.env.HUBSPOT_WORKBON_SERVICE_KEY,
-      config,
+      config: runtimeConfig,
     }),
     documenso: createDocumensoClient({
       apiToken: process.env.DOCUMENSO_API_TOKEN,
-      config,
+      config: runtimeConfig,
     }),
   };
 }
@@ -810,12 +863,19 @@ exports.main = async (context = {}) => {
       action: context.parameters?.action,
       recipients: context.parameters?.recipients,
     };
-    const scope = validateStartScope(input);
+    const runtimeConfig = config.forPortal(input.serverAccountId ?? input.clientAccountId);
+    if (!runtimeConfig) {
+      throw new WorkflowError(
+        "PORTAL_MISMATCH",
+        "Portal heeft geen vrijgegeven Werkbon-configuratie.",
+      );
+    }
+    const scope = validateStartScope(input, runtimeConfig);
     return await runOncePerTicket(scope.ticketId, () => {
-      const dependencies = createRuntimeDependencies();
+      const dependencies = createRuntimeDependencies(runtimeConfig);
       return input.action === "resume"
-        ? runResumeWorkflow(input, dependencies)
-        : runStartWorkflow(input, dependencies);
+        ? runResumeWorkflow(input, dependencies, runtimeConfig)
+        : runStartWorkflow(input, dependencies, runtimeConfig);
     });
   } catch (error) {
     return {
@@ -834,6 +894,7 @@ exports.main = async (context = {}) => {
 };
 
 module.exports.WorkflowError = WorkflowError;
+module.exports.buildExternalId = buildExternalId;
 module.exports.normalizeId = normalizeId;
 module.exports.normalizeRecipientInput = normalizeRecipientInput;
 module.exports.determineSigningAction = determineSigningAction;

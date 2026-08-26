@@ -1,5 +1,36 @@
 # ACTUEEL — Werkbon Qvantum projectstatus
 
+## Actuele production-prepstatus — 2026-08-26
+
+```text
+PROJECTFASE:
+Production configuration gereed voor gecontroleerde deployment
+
+VERDICT:
+PASS — PRODUCTION CONFIG READY FOR CONTROLLED DEPLOYMENT
+
+ENIGE VOLGENDE VEILIGE STAP:
+Controlled Production Deployment + Single-Ticket Cutover
+```
+
+Leidende technische baseline:
+
+- golden sandboxcommit en tag: `19ef7f71c3d6af7539e1c7d82326ea67ddc86797` / `werkbon-sandbox-mvp-pass-2026-08-24`;
+- productionportal: `143794667`;
+- productionpipeline: `0`;
+- enig vrijgegeven productionticket: `415307052257`;
+- exact productionsubject: `OSH BEA400`;
+- production externalId: `hubspot:143794667:ticket:<ticketId>`;
+- beide `qvantum_documenso_*` Ticket-properties bestaan als single-line tekst;
+- sandbox en production worden fail-closed op serverportal van elkaar gescheiden;
+- lokale validatie: 41/41 function tests, 10/10 App Card tests, typecheck, project validate voor beide profielen, clean module-load en reproduceerbare runtimebundle PASS.
+
+Files-search is geen pre-deployment stopgate meer: de waargenomen HTTP 400-responses waren `VALIDATION_ERROR` en geen auth/scopebewijs. De eerste echte File-upload blijft tijdens de controlled cutover een expliciete stopgate; de eerste auth/scopefout stopt die cutover onmiddellijk.
+
+Niet uitgevoerd: geen app upload/deployment, geen production secrets ingesteld, geen Ticket/File/Note-runtimewrites, geen Documenso-writes en geen controlled cutover.
+
+Deze sectie vervangt voor actuele status en volgende stap de historische WP0/WP1-status verderop in dit document.
+
 Dit document is het verplichte startpunt voor iedere nieuwe Chat-, Work- en Codex-sessie.
 
 ## Projectdoel

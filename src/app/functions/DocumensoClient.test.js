@@ -88,6 +88,33 @@ test("create uses native FormData payload with proven template, slots and extern
   assert.equal(envelope.id, "envelope_created");
 });
 
+test("production create uses the portal-bound externalId", async () => {
+  let payload;
+  const productionConfig = config.environments.production;
+  const client = createDocumensoClient({
+    apiToken: "mock-token",
+    config: productionConfig,
+    fetchImpl: async (_url, options) => {
+      payload = JSON.parse(options.body.get("payload"));
+      return jsonResponse(200, {
+        id: "envelope_created",
+        status: "DRAFT",
+        externalId: "hubspot:143794667:ticket:415307052257",
+      });
+    },
+  });
+
+  await client.createFromTemplate({
+    ticketId: "415307052257",
+    recipients: {
+      monteur: { name: "Richard van den Bergh", email: "teun.willems@qvantum.com" },
+      klant: { name: "Test Klant", email: "teun.willems@escapr.nl" },
+    },
+  });
+  assert.equal(payload.externalId, "hubspot:143794667:ticket:415307052257");
+  assert.equal(payload.envelopeId, "envelope_dtufbxnrcmecmzbi");
+});
+
 test("429 JSON error captures only safe request and rate-limit diagnostics", async () => {
   const error = await captureCreateError(
     errorResponse(
