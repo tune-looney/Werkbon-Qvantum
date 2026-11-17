@@ -59,7 +59,8 @@ function input(overrides = {}) {
     ticketId: DEFAULT_TICKET_ID,
     action: "open",
     recipients: {
-      monteurName: "Richard van den Bergh",
+      monteurName: "Marco Liefhebber",
+      monteurEmail: "monteur@qvantum.com",
       klantName: "Test Klant",
       klantEmail: "teun.willems@escapr.nl",
     },
@@ -76,11 +77,11 @@ function envelope(overrides = {}) {
     externalId: `hubspot-ticket:${DEFAULT_TICKET_ID}`,
     templateEnvelopeId: null,
     recipients: [
-      { email: "teun.willems@qvantum.com", name: "Richard van den Bergh", signingOrder: 1, signingStatus: monteurStatus },
+      { email: "monteur@qvantum.com", name: "Marco Liefhebber", signingOrder: 1, signingStatus: monteurStatus },
       { email: "teun.willems@escapr.nl", name: "Test Klant", signingOrder: 2, signingStatus: klantStatus },
     ],
     signing: {
-      monteur: { id: "recipient_1", email: "teun.willems@qvantum.com", name: "Richard van den Bergh", signingOrder: 1, signingStatus: monteurStatus, sendStatus: "SENT", url: "https://sign.test/monteur" },
+      monteur: { id: "recipient_1", email: "monteur@qvantum.com", name: "Marco Liefhebber", signingOrder: 1, signingStatus: monteurStatus, sendStatus: "SENT", url: "https://sign.test/monteur" },
       klant: { id: "recipient_2", email: "teun.willems@escapr.nl", name: "Test Klant", signingOrder: 2, signingStatus: klantStatus, sendStatus: "SENT", url: "https://sign.test/klant" },
     },
     envelopeItemId: "item_1",
@@ -156,8 +157,9 @@ function harness({
           calls.findExternalIds.push(externalId);
           return recoveryCandidates;
         },
-        async createFromTemplate() {
+        async createFromTemplate(payload) {
           calls.create += 1;
+          calls.lastCreatePayload = payload;
           sequence.push("create");
           return currentEnvelope;
         },
@@ -203,7 +205,7 @@ test("sequential signing selects the customer after the mechanic", async () => {
 test("recipient mismatch stops before replacement", async () => {
   const h = harness({ envelopeId: "envelope_a" });
   await assert.rejects(
-    runStartWorkflow(input({ recipients: { monteurName: "Marco Liefhebber", klantName: "Andere Klant", klantEmail: "teun.willems@escapr.nl" } }), h.dependencies),
+    runStartWorkflow(input({ recipients: { monteurName: "Marco Liefhebber", monteurEmail: "monteur@qvantum.com", klantName: "Andere Klant", klantEmail: "teun.willems@escapr.nl" } }), h.dependencies),
     (error) => error.code === "RECIPIENT_MISMATCH",
   );
   assert.equal(h.calls.create, 0);
@@ -694,4 +696,46 @@ test("serverless production entrypoint accepts a pilot Ticket after server-side 
   });
   assert.equal(result.ok, false);
   assert.notEqual(result.error.code, "TICKET_NOT_ALLOWED");
+});
+
+test("an envelope made from the previous template (before the v6 switch) still passes the contract", () => {
+  const { validateEnvelopeContract } = require("./QvantumWerkbonStart");
+  const config = require("./WerkbonConfig");
+  const signing = {
+    monteur: { email: "monteur@qvantum.com", name: "Marco Liefhebber", signingOrder: 1, signingStatus: "SIGNED", url: "https://sign.test/m" },
+    klant: { email: "k@example.com", name: "Klant", signingOrder: 2, signingStatus: "NOT_SIGNED", url: "https://sign.test/k" },
+  };
+  const envelope = (templateEnvelopeId) => ({
+    id: "envelope_x", status: "PENDING", externalId: `${config.externalIdPrefix}1`, templateEnvelopeId, signing,
+  });
+  assert.doesNotThrow(() => validateEnvelopeContract(envelope("envelope_dtufbxnrcmecmzbi"), "1", null, config));
+  assert.doesNotThrow(() => validateEnvelopeContract(envelope(config.documensoTemplateEnvelopeId), "1", null, config));
+  assert.throws(() => validateEnvelopeContract(envelope("envelope_unknown"), "1", null, config), /TEMPLATE_MISMATCH|contract/);
+});
+
+test("the monteur must be an allowed name and the e-mail must be a Qvantum address", async () => {
+  const h = harness({ envelopeId: null });
+  await assert.rejects(
+    runStartWorkflow(input({ recipients: { monteurName: "Onbekende Gebruiker", monteurEmail: "monteur@qvantum.com", klantName: "Test Klant", klantEmail: "klant@example.com" } }), h.dependencies),
+    (error) => error.code === "INVALID_MONTEUR",
+  );
+  await assert.rejects(
+    runStartWorkflow(input({ recipients: { monteurName: "Marco Liefhebber", monteurEmail: "marco@gmail.com", klantName: "Test Klant", klantEmail: "klant@example.com" } }), h.dependencies),
+    (error) => error.code === "INVALID_MONTEUR_EMAIL",
+  );
+  await assert.rejects(
+    runStartWorkflow(input({ recipients: { monteurName: "Marco Liefhebber", monteurEmail: "", klantName: "Test Klant", klantEmail: "klant@example.com" } }), h.dependencies),
+    (error) => error.code === "INVALID_MONTEUR_EMAIL",
+  );
+  assert.equal(h.calls.create, 0);
+});
+
+test("a new envelope gets the monteur e-mail from the input, not from a fixed address", async () => {
+  const h = harness({ envelopeId: null });
+  // Het e-mailadres uit de input wordt genormaliseerd (kleine letters) en komt in de Documenso-aanvraag terecht.
+  await runStartWorkflow(input({ recipients: { ...input().recipients, monteurEmail: "Monteur@Qvantum.com" } }), h.dependencies);
+  assert.equal(h.calls.create, 1);
+  const payload = JSON.stringify(h.calls.lastCreatePayload);
+  assert.equal(payload.includes("monteur@qvantum.com"), true);
+  assert.equal(payload.includes("Monteur@Qvantum"), false);
 });

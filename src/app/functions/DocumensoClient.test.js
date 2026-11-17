@@ -78,10 +78,10 @@ test("create uses native FormData payload with proven template, slots and extern
   assert.equal(request.options.headers.Authorization, "mock-token");
   assert.ok(request.options.body instanceof FormData);
   assert.deepEqual(JSON.parse(request.options.body.get("payload")), {
-    envelopeId: "envelope_dtufbxnrcmecmzbi",
+    envelopeId: "envelope_terbtckdrdlvukcf",
     recipients: [
-      { id: 3320825, email: "teun.willems@qvantum.com", name: "Richard van den Bergh" },
-      { id: 3320824, email: "teun.willems@escapr.nl", name: "Test Klant" },
+      { id: 4194043, email: "teun.willems@qvantum.com", name: "Richard van den Bergh" },
+      { id: 4194044, email: "teun.willems@escapr.nl", name: "Test Klant" },
     ],
     externalId: "hubspot-ticket:425555669195",
   });
@@ -112,7 +112,7 @@ test("production create uses the portal-bound externalId", async () => {
     },
   });
   assert.equal(payload.externalId, "hubspot:143794667:ticket:415307052257");
-  assert.equal(payload.envelopeId, "envelope_dtufbxnrcmecmzbi");
+  assert.equal(payload.envelopeId, "envelope_terbtckdrdlvukcf");
 });
 
 test("429 JSON error captures only safe request and rate-limit diagnostics", async () => {

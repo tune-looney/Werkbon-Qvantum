@@ -32,7 +32,8 @@ Operationele les voor de pilot: het verwijderen van de HubSpot Note verwijdert o
 
 ## Voorbereidende pilotdocumentatie (pilot nog niet gereed)
 
-- Monteurs: Richard van den Bergh en Marco Liefhebber.
+- Monteur: Marco Liefhebber (Richard van den Bergh is uit dienst). De App Card neemt naam en e-mailadres van de ingelogde HubSpot-gebruiker; de serverless functie staat alleen de toegestane naam en een `@qvantum.com`-adres toe (wijziging 17 nov 2026, vervangt het vaste sandboxadres uit de testfase).
+- Documenso-sjabloon: v6 `envelope_terbtckdrdlvukcf` (template_25849, nieuwe huisstijl, 17 nov 2026), recipient monteur 4194043 en klant 4194044. Envelopes uit het vorige sjabloon `envelope_dtufbxnrcmecmzbi` blijven geldig. De directe invullink van het sjabloon hoort niet bij de route en moet in Documenso worden uitgezet.
 - Alleen vooraf geselecteerde echte production Tickets; geen bulkgebruik of automatisering. De huidige tijdelijke guards staan nog op exact Ticket `415307052257` en subject `OSH BEA400`; deze moeten vóór pilot worden vervangen door de bedoelde production pilot guards.
 - Monteur gebruikt de App Card handmatig vanuit het juiste Ticket.
 - Klant tekent op hetzelfde apparaat.

@@ -5,7 +5,7 @@ GPT/Chat is eigenaar van functionele besluitvorming. Dit register legt open, gew
 | ID | Besluit | Status | Advies | Datum | Eigenaar | Bewijs | Definitief besluit | Gevolgen voor contract of implementatie |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | D01 | Gecontroleerde startwijze | `OPEN` | Handmatige ticketactie; beveiligde webhook alleen als fallback | — | GPT/Chat | Nog te verzamelen | — | Nog te bepalen |
-| D02 | Monteursbron | `OPEN` | Handmatig totdat een eenduidig productieveld bewezen is | — | GPT/Chat | Nog te verzamelen | — | Nog te bepalen |
+| D02 | Monteursbron | `GESLOTEN` | Handmatig totdat een eenduidig productieveld bewezen is | 2026-11-17 | Viktor de Haan | App Card `context.user` (naam, e-mail); serverside guard op naam en `@qvantum.com` | De ingelogde HubSpot-gebruiker is de monteur; geen keuzelijst en geen vast e-mailadres meer | `WerkbonRecipientInput` krijgt `monteurEmail`; `allowedMonteurNames` bevat alleen Marco Liefhebber; `sandboxMonteurEmail` vervalt |
 | D03 | Opdrachtgever en bezoekadres | `OPEN` | Ticketserviceadres vóór companyfallback | — | GPT/Chat | Nog te verzamelen | — | Nog te bepalen |
 | D04 | PandaDoc-rollen en Route A | `OPEN` | Eén document; monteur gevolgd door klant | — | GPT/Chat | Nog te verzamelen | — | Nog te bepalen |
 | D05 | Route B/C | `OPEN` | B als fallback; C alleen als expliciete uitzondering | — | GPT/Chat | Nog te verzamelen | — | Nog te bepalen |

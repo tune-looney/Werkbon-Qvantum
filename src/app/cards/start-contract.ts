@@ -1,7 +1,9 @@
 export const START_FUNCTION_UID = "qvantum_werkbon_start";
 
 export type WerkbonRecipientInput = {
-  monteurName: "Richard van den Bergh" | "Marco Liefhebber";
+  // De monteur is de ingelogde HubSpot-gebruiker (context.user); de server controleert naam en e-maildomein.
+  monteurName: string;
+  monteurEmail: string;
   klantName: string;
   klantEmail: string;
 };
