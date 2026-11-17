@@ -4,20 +4,24 @@ const sharedConfig = Object.freeze({
   allowedPipelineId: "0",
   documensoApiBaseUrl: "https://app.documenso.com/api/v2",
   documensoAppBaseUrl: "https://app.documenso.com",
-  documensoTemplateEnvelopeId: "envelope_dtufbxnrcmecmzbi",
+  // Werkbon v6 (nieuwe huisstijl), sjabloon aangemaakt 17 nov 2026 (template_25849).
+  documensoTemplateEnvelopeId: "envelope_terbtckdrdlvukcf",
+  // Eerdere sjablonen: envelopes die daaruit zijn gemaakt blijven geldig (open werkbonnen van voor de wissel).
+  previousTemplateEnvelopeIds: Object.freeze(["envelope_dtufbxnrcmecmzbi"]),
   ticketProperties: Object.freeze({
     envelopeId: "qvantum_documenso_envelope_id",
     hubspotFileId: "qvantum_documenso_hubspot_file_id",
   }),
   recipientSlots: Object.freeze({
-    monteur: 3320825,
-    klant: 3320824,
+    monteur: 4194043,
+    klant: 4194044,
   }),
-  sandboxMonteurEmail: "teun.willems@qvantum.com",
+  // De monteur is de ingelogde HubSpot-gebruiker (App Card stuurt naam en e-mail mee). Toegestaan: alleen deze
+  // namen, en alleen een e-mailadres op het Qvantum-domein. Het vaste sandboxadres uit de testfase is weg (17 nov 2026).
   allowedMonteurNames: Object.freeze([
-    "Richard van den Bergh",
     "Marco Liefhebber",
   ]),
+  allowedMonteurEmailDomain: "qvantum.com",
   noteAssociationTypeId: 228,
 });
 

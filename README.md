@@ -10,7 +10,7 @@ Technische acties vinden alleen plaats vanuit een expliciet vrijgegeven werkpakk
 
 ## Production MVP en pilot
 
-De production-MVP is afgerond op portal `143794667` met deployment `#2`. Pilot readiness is nog geblokkeerd: de huidige tijdelijke cutover-guards beperken de App Card tot Ticket `415307052257` met subject `OSH BEA400` en moeten vóór pilot worden vervangen door de bedoelde production pilot guards. De voorbereidende pilotdocumentatie noemt Richard van den Bergh en Marco Liefhebber; de klant tekent op hetzelfde apparaat.
+De production-MVP is afgerond op portal `143794667` met deployment `#2`. Pilot readiness is nog geblokkeerd: de huidige tijdelijke cutover-guards beperken de App Card tot Ticket `415307052257` met subject `OSH BEA400` en moeten vóór pilot worden vervangen door de bedoelde production pilot guards. De voorbereidende pilotdocumentatie noemt Marco Liefhebber als monteur (Richard van den Bergh is per november 2026 uit dienst); de klant tekent op hetzelfde apparaat. Sinds 17 november 2026 is de monteur de ingelogde HubSpot-gebruiker en wijst de app naar Documenso-sjabloon v6.
 
 Stop direct bij verkeerde context, duplicate envelope, vastlopende signing, ontbrekende PDF/Note, File- of auth/scopefout, onbruikbare App Card, onverwachte CRM-write of afwijkende recovery/idempotency. Gebruik geen automatische retries.
 

@@ -82,10 +82,17 @@ function normalizeRecipientInput(input, runtimeConfig = config) {
   if (action === "resume" || (action === "status" && !input.recipients)) return null;
 
   const monteurName = String(input.recipients?.monteurName || "").trim();
+  const monteurEmail = String(input.recipients?.monteurEmail || "").trim().toLowerCase();
   const klantName = String(input.recipients?.klantName || "").trim();
   const klantEmail = String(input.recipients?.klantEmail || "").trim().toLowerCase();
   if (!runtimeConfig.allowedMonteurNames.includes(monteurName)) {
-    throw new WorkflowError("INVALID_MONTEUR", "Selecteer een geldige monteur.");
+    throw new WorkflowError("INVALID_MONTEUR", "De ingelogde gebruiker is geen toegestane monteur.");
+  }
+  if (
+    !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(monteurEmail) ||
+    !monteurEmail.endsWith(`@${runtimeConfig.allowedMonteurEmailDomain}`)
+  ) {
+    throw new WorkflowError("INVALID_MONTEUR_EMAIL", "Het e-mailadres van de monteur moet een Qvantum-adres zijn.");
   }
   if (!klantName || klantName.length > 255) {
     throw new WorkflowError("INVALID_KLANT_NAME", "Vul een geldige klantnaam in.");
@@ -96,7 +103,7 @@ function normalizeRecipientInput(input, runtimeConfig = config) {
   return {
     monteur: {
       name: monteurName,
-      email: runtimeConfig.sandboxMonteurEmail.toLowerCase(),
+      email: monteurEmail,
     },
     klant: { name: klantName, email: klantEmail },
   };
@@ -115,9 +122,13 @@ function validateEnvelopeContract(
       "Documenso-envelope hoort niet bij dit Werkbon-ticket en portal.",
     );
   }
+  const allowedTemplates = [
+    runtimeConfig.documensoTemplateEnvelopeId,
+    ...(runtimeConfig.previousTemplateEnvelopeIds || []),
+  ];
   if (
     envelope.templateEnvelopeId &&
-    envelope.templateEnvelopeId !== runtimeConfig.documensoTemplateEnvelopeId
+    !allowedTemplates.includes(envelope.templateEnvelopeId)
   ) {
     throw new WorkflowError(
       "TEMPLATE_MISMATCH",

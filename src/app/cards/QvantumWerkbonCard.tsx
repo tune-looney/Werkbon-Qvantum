@@ -3,7 +3,6 @@ import {
   Flex,
   Input,
   LoadingButton,
-  Select,
   Text,
   hubspot,
 } from "@hubspot/ui-extensions";
@@ -21,19 +20,27 @@ import {
 type WerkbonCardProps = {
   portalId: number;
   ticketId: number;
+  monteurName: string;
+  monteurEmail: string;
 };
 
 hubspot.extend<"crm.record.tab">(({ context }) => {
+  // De monteur is de ingelogde HubSpot-gebruiker; de serverless functie controleert naam en e-maildomein.
+  const monteurName = [context.user.firstName, context.user.lastName]
+    .map((part) => String(part ?? "").trim())
+    .filter(Boolean)
+    .join(" ");
   return (
     <WerkbonCard
       portalId={context.portal.id}
       ticketId={context.crm.objectId}
+      monteurName={monteurName}
+      monteurEmail={String(context.user.email ?? "").trim().toLowerCase()}
     />
   );
 });
 
-const WerkbonCard = ({ portalId, ticketId }: WerkbonCardProps) => {
-  const [monteurName, setMonteurName] = useState("");
+const WerkbonCard = ({ portalId, ticketId, monteurName, monteurEmail }: WerkbonCardProps) => {
   const [klantName, setKlantName] = useState("");
   const [klantEmail, setKlantEmail] = useState("");
   const [result, setResult] = useState<StartWerkbonResponse | null>(null);
@@ -42,13 +49,14 @@ const WerkbonCard = ({ portalId, ticketId }: WerkbonCardProps) => {
   const [initialized, setInitialized] = useState(false);
   const requestInFlight = useRef(false);
   const emailValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(klantEmail.trim());
-  const formReady = Boolean(monteurName && klantName.trim() && emailValid);
+  const formReady = Boolean(monteurName && monteurEmail && klantName.trim() && emailValid);
   const successfulResult = result?.ok && result.status !== "NO_ENVELOPE" ? result : null;
   const showStartForm = initialized && result?.ok && result.status === "NO_ENVELOPE";
 
   const recipients = formReady
     ? ({
         monteurName,
+        monteurEmail,
         klantName: klantName.trim(),
         klantEmail: klantEmail.trim().toLowerCase(),
       } as WerkbonRecipientInput)
@@ -107,18 +115,9 @@ const WerkbonCard = ({ portalId, ticketId }: WerkbonCardProps) => {
       {!initialized ? <Text>Werkbonstatus laden...</Text> : null}
       {showStartForm ? (
         <Flex direction="column" gap="small">
-          <Select
-            label="Monteur"
-            name="monteur"
-            required
-            placeholder="Selecteer monteur"
-            value={monteurName}
-            onChange={(value) => setMonteurName(String(value))}
-            options={[
-              { label: "Richard van den Bergh", value: "Richard van den Bergh" },
-              { label: "Marco Liefhebber", value: "Marco Liefhebber" },
-            ]}
-          />
+          <Text>
+            Monteur: {monteurName || "onbekend"} ({monteurEmail || "geen e-mailadres"})
+          </Text>
           <Input
             label="Klantnaam"
             name="klantnaam"
